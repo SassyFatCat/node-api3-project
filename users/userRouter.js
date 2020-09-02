@@ -20,28 +20,42 @@ Users.get()
   .catch(err => res.status(500).json({ error: err }))
 });
 
-router.get('/:id', (req, res) => {
-  // do your magic!
+router.get('/:id', validateUserId, (req, res) => {
+res.status(200).json({ data: req.user })
 });
 
-router.get('/:id/posts', (req, res) => {
-  // do your magic!
+router.get('/:id/posts', validateUserId, (req, res) => {
+const {id} = req.params;
+Users.getUserPosts(id)
+  .then(result => {
+    result[0] ? res.status(200).json({ data: result }) : res.status(200).json({ data: "This user does not have any posts" })
+  })
+  .catch(err => res.status(500).json({ error: "Server error" }))
 });
 
-router.delete('/:id', (req, res) => {
-  // do your magic!
+router.delete('/:id', validateUserId, (req, res) => {
+Users.remove(req.user.id)
+  .then(result => res.status(200).json({ data: result === 1 ? "User was removed" : "User could not be removed" }))
+  .catch(err => res.status(500).json({ error: "Server error" }))
 });
 
 router.put('/:id', (req, res) => {
   // do your magic!
 });
 
-//custom middleware
 
+// CUSTOM MIDDLEWARE
 function validateUserId(req, res, next) {
 const id = Number(req.params.id);
 Users.getById(id)
-  .then(result => {req.user = result; next()})
+  .then(result => {
+    if (result) {
+      req.user = result;
+      next()
+    } else {
+      res.status(400).json({ error: "User does not exist" })
+    }
+  })
   .catch(err => res.status(400).json({ message: "invalid user id" }))
 }
 
