@@ -39,8 +39,11 @@ Users.remove(req.user.id)
   .catch(err => res.status(500).json({ error: "Server error" }))
 });
 
-router.put('/:id', (req, res) => {
-  // do your magic!
+router.put('/:id', validateUserId, (req, res) => {
+req.user.name = req.body.name;
+Users.update(req.params.id, req.user)
+  .then(result => res.status(200).json({ data: result === 1 ? "User updated" : "User could not be updated" }))
+  .catch(err => res.status(500).json({ error: "Server error" }))
 });
 
 
