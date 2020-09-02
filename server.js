@@ -1,13 +1,25 @@
+// IMPORTS
 const express = require('express');
+const helmet = require('helmet');
+const userRouter = require('./users/userRouter.js');
+const postRouter = require('./posts/postRouter.js');
 
+// SERVER
 const server = express();
 
-server.get('/', (req, res) => {
-  res.send(`<h2>Let's write some middleware!</h2>`);
-});
+// GLOBAL MIDDLEWARE
+server.use(express.json());
+server.use(helmet());
+server.use(logger);
 
-//custom middleware
+// ROUTERS
+server.use('/api/users', userRouter);
+server.use('/api/posts', postRouter);
 
-function logger(req, res, next) {}
+// GLOBAL MIDDLEWARE FUNCTIONS
+function logger(req, res, next) {
+console.log(`Request: ${req.method} | To: ${req.url}`);
+next()
+}
 
 module.exports = server;
